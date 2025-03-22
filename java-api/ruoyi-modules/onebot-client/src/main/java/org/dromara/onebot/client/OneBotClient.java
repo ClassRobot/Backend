@@ -1,0 +1,111 @@
+package org.dromara.onebot.client;
+
+import cn.hutool.http.HttpUtil;
+import cn.hutool.http.Method;
+import org.dromara.onebot.client.connection.WSClient;
+import org.dromara.onebot.client.core.Bot;
+import org.dromara.onebot.client.core.BotConfig;
+import org.dromara.onebot.client.instances.action.ActionFactory;
+import org.dromara.onebot.client.instances.event.EventFactory;
+import org.dromara.onebot.client.instances.event.EventsBusImpl;
+import org.dromara.onebot.client.instances.event.MsgHandlerImpl;
+import org.dromara.onebot.client.interfaces.EventsBus;
+import org.dromara.onebot.client.interfaces.Listener;
+import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.net.URI;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * @Project: onebot-client
+ * @Author: cnlimiter
+ * @CreateTime: 2024/1/26 22:58
+ * @Description:
+ */
+
+@Getter
+public final class OneBotClient {
+    private final ExecutorService eventExecutor = Executors.newFixedThreadPool(2, r -> new Thread(r, "OneBot Event"));
+    private final ExecutorService wsPool = Executors.newFixedThreadPool(2, r -> new Thread(r, "OneBot WS"));
+    private final Logger logger;
+    private final BotConfig config;
+    private final EventsBus eventsBus;
+    private final MsgHandlerImpl msgHandler;
+    private final EventFactory eventFactory;
+    private final ActionFactory actionFactory;
+
+    private WSClient ws = null;
+    private Bot bot = null;
+
+    private OneBotClient(BotConfig config) {
+        this.logger = LogManager.getLogger("OneBot Client");
+        this.config = config;
+        this.eventsBus = new EventsBusImpl(this);
+        this.msgHandler = new MsgHandlerImpl(this);
+        this.eventFactory = new EventFactory(this);
+        this.actionFactory = new ActionFactory(this);
+    }
+
+    public static OneBotClient create(BotConfig config){
+        return new OneBotClient(config);
+    }
+
+    public static OneBotClient create(BotConfig config, Listener... listeners){
+        return new OneBotClient(config).registerEvents(listeners);
+    }
+
+    public OneBotClient open() {
+        StringBuilder url = new StringBuilder();
+//        wsPool.execute(() -> {
+            url.append(config.getUrl() + "/ws");
+//                    .append("?verifyKey=" + config.getToken() + "&xcx=" + config.getBotId());
+            try {
+                ws = new WSClient(this, URI.create(url.toString()));
+                ws.connect();
+                bot = ws.createBot();
+            } catch (Exception e) {
+                logger.error("▌ §c {}连接错误，请检查服务端是否开启 §a┈━═☆", URI.create(url.toString()));
+                logger.error(e);
+            }
+//        });
+        return this;
+    }
+
+    public boolean close() {
+        try {
+            ws.closeBlocking();
+        } catch (InterruptedException e) {
+            logger.error("▌ §c{} 打断关闭进程的未知错误 §a┈━═☆", e);
+            ws = null;
+        }
+        return threadStop(eventExecutor) && threadStop(wsPool);
+    }
+
+    public OneBotClient registerEvents(Listener... listeners){
+        for (Listener c : listeners){
+            getEventsBus().register(c);
+        }
+        return this;
+    }
+
+    private boolean threadStop(ExecutorService service){
+        if (!service.isShutdown()) {
+            service.shutdown();
+            try {
+                return service.awaitTermination(2, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                logger.error("▌ §c{} 打断关闭进程的未知错误 §a┈━═☆", e);
+                service.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+        return false;
+    }
+
+
+
+}
