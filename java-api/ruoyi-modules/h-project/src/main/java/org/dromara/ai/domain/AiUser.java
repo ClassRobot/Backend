@@ -1,8 +1,10 @@
 package org.dromara.ai.domain;
 
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
-import com.baomidou.mybatisplus.annotation.*;
 
 import java.io.Serial;
 
@@ -13,12 +15,11 @@ import java.io.Serial;
  * @date 2025-03-26
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@TableName("ai_message")
+@TableName("public.user")
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-public class AiMessage extends BaseEntity {
+public class AiUser {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -28,47 +29,6 @@ public class AiMessage extends BaseEntity {
      */
     @TableId(value = "id")
     private Long id;
-
-    /**
-     * 发送者id
-     */
-    private Long userId;
-
-    /**
-     * 接收者id（群聊则是群聊id）
-     */
-    private Long receiveId;
-
-    /**
-     * 消息类型
-     */
-    private String detailType;
-
-    /**
-     * 消息的json数据
-     */
-    private String data;
-
-    /**
-     * 消息的文本形式
-     */
-    private String altMssage;
-
-    /**
-     * 备注
-     */
-    private String remark;
-
-    /**
-     * 是否已读
-     */
-    private Long readFlag;
-
-    /**
-     * 删除标志（0代表存在 2代表删除）
-     */
-    @TableLogic
-    private Long delFlag;
 
 
 }

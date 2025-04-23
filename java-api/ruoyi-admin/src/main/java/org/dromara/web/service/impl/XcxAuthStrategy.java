@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.domain.model.XcxLoginBody;
 import org.dromara.common.core.domain.model.XcxLoginUser;
 import org.dromara.common.core.enums.UserStatus;
+import org.dromara.common.core.enums.UserType;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.StreamUtils;
 import org.dromara.common.core.utils.ValidatorUtils;
@@ -30,6 +31,7 @@ import org.dromara.system.mapper.SysUserMapper;
 import org.dromara.system.service.ISysSocialService;
 import org.dromara.system.service.ISysUserService;
 import org.dromara.web.domain.vo.LoginVo;
+import org.dromara.web.domain.vo.XcxLoginVo;
 import org.dromara.web.service.IAuthStrategy;
 import org.dromara.web.service.SysLoginService;
 import org.springframework.stereotype.Service;
@@ -61,7 +63,8 @@ public class XcxAuthStrategy implements IAuthStrategy {
         String xcxCode = loginBody.getXcxCode();
         // 多个小程序识别使用
         String appid = loginBody.getAppid();
-        String appSecret = "0c8fe611d23f063856cc948c9f753b6e";
+//        String appSecret = "0c8fe611d23f063856cc948c9f753b6e";
+        String appSecret = "a44841d7198fd8854e16fbfa4e3ffdb5";
 
         String loginUrl = "https://api.weixin.qq.com/sns/jscode2session?appid=" + appid + "&secret=" + appSecret+ "&js_code=" + xcxCode + "&grant_type=authorization_code";
 
@@ -95,11 +98,12 @@ public class XcxAuthStrategy implements IAuthStrategy {
         // 生成token
         LoginHelper.login(loginUser, model);
 
-        LoginVo loginVo = new LoginVo();
+        XcxLoginVo loginVo = new XcxLoginVo();
         loginVo.setAccessToken(StpUtil.getTokenValue());
         loginVo.setExpireIn(StpUtil.getTokenTimeout());
         loginVo.setClientId(client.getClientId());
         loginVo.setOpenid(openid);
+        loginVo.setUserInfo(user);
         return loginVo;
     }
 
@@ -112,7 +116,7 @@ public class XcxAuthStrategy implements IAuthStrategy {
         if(socialList.size() == 0){
 
             SysUserBo userBo = SysUserBo.builder()
-                .userType(SOURCE)
+                .userType(UserType.WX_APPLET.getUserType())
                 .nickName("小程序用户")
                 .userName("asfawfdawe")
                 .build();

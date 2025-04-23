@@ -1,4 +1,4 @@
-package org.dromara.onebot.entity.handler;
+package org.dromara.onebot.handler;
 
 public interface MessageHandler {
 }

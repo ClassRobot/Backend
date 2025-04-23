@@ -23,7 +23,7 @@ public class Knife4jConfig {
     public GroupedOpenApi adminApi() {
         return GroupedOpenApi.builder()
             // 分组名称
-            .group("AI有问必答")
+            .group("AI 辅导员")
             // 接口请求路径规则aaaaaaa
             .pathsToMatch("/api/ai/**")
             .build();

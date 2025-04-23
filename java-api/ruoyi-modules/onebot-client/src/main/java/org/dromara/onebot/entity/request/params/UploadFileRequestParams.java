@@ -1,13 +1,18 @@
 package org.dromara.onebot.entity.request.params;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.dromara.onebot.entity.request.RequestMessage;
+import lombok.NoArgsConstructor;
 
 /**
  * OneBot请求消息
  */
 @Data
-public class UploadRequestParams {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class UploadFileRequestParams {
 
     /**
      * 上传文件的方式，可以为 url、path、data 或扩展的方式

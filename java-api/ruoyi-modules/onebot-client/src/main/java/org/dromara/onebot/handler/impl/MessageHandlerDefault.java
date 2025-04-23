@@ -1,6 +1,6 @@
-package org.dromara.onebot.entity.handler.impl;
+package org.dromara.onebot.handler.impl;
 
-import org.dromara.onebot.entity.handler.MessageHandler;
+import org.dromara.onebot.handler.MessageHandler;
 import org.springframework.stereotype.Service;
 
 @Service

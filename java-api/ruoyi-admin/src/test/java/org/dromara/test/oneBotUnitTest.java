@@ -1,6 +1,5 @@
 package org.dromara.test;
 
-import org.dromara.onebot.client.OneBotClient;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,8 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class oneBotUnitTest {
 
-    @Autowired
-    private OneBotClient oneBotClient;
 
     @Test
     public void getVersionInfo() {

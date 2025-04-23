@@ -1,15 +1,21 @@
 package org.dromara.onebot.entity.message;
 
-public enum ChatMessageDataEnum {
+import lombok.Getter;
+import org.dromara.onebot.socket.OneBotClient;
+
+import java.net.URI;
+
+@Getter
+public enum ChatMessageTypeEnum {
 
     /**
-     * 文本消息
+     * 私发消息
      */
-    text,
+    PRIVATE("private");
 
-    /**
-     * 图片消息
-     */
-    image
+    private String value;
 
+    ChatMessageTypeEnum(String type) {
+        this.value = type;
+    }
 }

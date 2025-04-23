@@ -9,7 +9,8 @@ import org.dromara.onebot.entity.message.ChatMessage;
 import org.dromara.onebot.entity.request.RequestMessage;
 import org.dromara.onebot.entity.request.ResponseMessage;
 import org.dromara.onebot.handler.RequestMessageHandler;
-import org.dromara.system.service.ISysOssService;
+import org.dromara.system.domain.vo.SysUserVo;
+import org.dromara.system.service.ISysUserService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,29 +18,27 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
-public class MessageRequestMessageHandler implements RequestMessageHandler {
+public class UserRequestMessageHandler implements RequestMessageHandler {
 
-    private final IMessageService messageService;
+    private final ISysUserService userService;
 
     /**
      * 处理send_message请求
      */
-    @RequestMessageMapping(value = "send_message", description = "处理接收到的message消息")
-    public ResponseMessage sendMessage(RequestMessage request) {
+    @RequestMessageMapping(value = "get_user_info", description = "获取用户信息")
+    public ResponseMessage get_user_info(RequestMessage request) {
         String userId = (String) request.getParams().get("user_id");
-        Object message = request.getParams().get("message");
 
-        MessagesBo build = MessagesBo.builder()
-                .receiveId(Long.parseLong(userId))
-                .messages(JsonUtils.parseArray(JsonUtils.toJsonString(message), ChatMessage.MessageData.class))
+        SysUserVo sysUserVo = userService.selectUserById(Long.valueOf(userId));
+
+        ResponseMessage.UserData build = ResponseMessage.UserData.builder().user_id(userId)
+                .user_name(sysUserVo.getUserName())
+                .user_displayname(sysUserVo.getNickName())
+                .user_remark(sysUserVo.getRemark() == null ? "" : sysUserVo.getRemark())
                 .build();
 
-        messageService.sendPrivateMessage(build, 0L);
-
-//        WebSocketUtils.sendMessage(Long.parseLong(userId), JsonUtils.toJsonString(build));
-
         // 构建响应消息
-        return ResponseMessage.ok();
+        return ResponseMessage.ok(build);
     }
 
 }

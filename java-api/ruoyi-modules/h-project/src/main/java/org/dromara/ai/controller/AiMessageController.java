@@ -1,4 +1,4 @@
-package org.dromara.system.controller;
+package org.dromara.ai.controller;
 
 import java.util.List;
 
@@ -17,9 +17,9 @@ import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
 import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.excel.utils.ExcelUtil;
-import org.dromara.system.domain.vo.AiMessageVo;
-import org.dromara.system.domain.bo.AiMessageBo;
-import org.dromara.system.service.IAiMessageService;
+import org.dromara.ai.domain.vo.AiMessageVo;
+import org.dromara.ai.domain.bo.AiMessageBo;
+import org.dromara.ai.service.IAiMessageService;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 
 /**
@@ -39,7 +39,7 @@ public class AiMessageController extends BaseController {
     /**
      * 查询AI辅导员的聊天记录列表
      */
-    @SaCheckPermission("system:message:list")
+    @SaCheckPermission("ai:message:list")
     @GetMapping("/list")
     public TableDataInfo<AiMessageVo> list(AiMessageBo bo, PageQuery pageQuery) {
         return aiMessageService.queryPageList(bo, pageQuery);
@@ -48,7 +48,7 @@ public class AiMessageController extends BaseController {
     /**
      * 导出AI辅导员的聊天记录列表
      */
-    @SaCheckPermission("system:message:export")
+    @SaCheckPermission("ai:message:export")
     @Log(title = "AI辅导员的聊天记录", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(AiMessageBo bo, HttpServletResponse response) {
@@ -61,7 +61,7 @@ public class AiMessageController extends BaseController {
      *
      * @param id 主键
      */
-    @SaCheckPermission("system:message:query")
+    @SaCheckPermission("ai:message:query")
     @GetMapping("/{id}")
     public R<AiMessageVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
@@ -71,7 +71,7 @@ public class AiMessageController extends BaseController {
     /**
      * 新增AI辅导员的聊天记录
      */
-    @SaCheckPermission("system:message:add")
+    @SaCheckPermission("ai:message:add")
     @Log(title = "AI辅导员的聊天记录", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -82,7 +82,7 @@ public class AiMessageController extends BaseController {
     /**
      * 修改AI辅导员的聊天记录
      */
-    @SaCheckPermission("system:message:edit")
+    @SaCheckPermission("ai:message:edit")
     @Log(title = "AI辅导员的聊天记录", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -95,7 +95,7 @@ public class AiMessageController extends BaseController {
      *
      * @param ids 主键串
      */
-    @SaCheckPermission("system:message:remove")
+    @SaCheckPermission("ai:message:remove")
     @Log(title = "AI辅导员的聊天记录", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")

@@ -1,58 +1,85 @@
 package org.dromara.onebot.socket;
 
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.dromara.onebot.socket.config.OneBotConfig;
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
+import org.dromara.onebot.config.OneBotConfig;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 
-public class OneBotClient extends WebSocketClient {
+import org.dromara.onebot.entity.message.ChatMessageTypeEnum;
+import org.dromara.onebot.handler.MessageHandler;
+import org.dromara.onebot.handler.RequestMessageHandlerManager;
+import org.dromara.onebot.entity.message.ChatMessage;
+import org.dromara.onebot.utils.MessageUtils;
+
+@Getter
+public class OneBotClient {
 
     private OneBotConfig config;
-    private static Logger logger;
+    public static Logger logger;
+    private OneBotSocket socket;
 
-    public OneBotClient(URI serverUri) {
-        super(serverUri);
-    }
+    @Getter
+    @Setter
+    private RequestMessageHandlerManager requestMessageHandlerManager;
 
     public OneBotClient(String serverUri) {
-        super(URI.create(serverUri));
+        this.socket = new OneBotSocket(URI.create(serverUri), this);
+        this.socket.connect();
     }
 
-    public static OneBotClient create(OneBotConfig config){
+    public static OneBotClient create(OneBotConfig config) {
         logger = LogManager.getLogger("OneBot Client");
 
         OneBotClient client = new OneBotClient(config.getBaseurl());
 
         client.config = config;
 
-        client.connect();
-
         return client;
     }
 
-    @Override
-    public void onOpen(ServerHandshake serverHandshake) {
-        logger.info("OneBotClient {}链接成功 机器人ID：{}", config.getBaseurl(), config.getBotId());
-
-
+    /**
+     * 发送私聊消息
+     *
+     * @param userId 用户ID
+     * @param message 消息内容
+     * @return 响应消息的CompletableFuture
+     */
+    public void sendPrivateMessage(String userId, String message) {
+        socket.sendMessage(userId, "private",
+                Collections.singletonList(MessageUtils
+                        .createTextMessage(message)));
     }
 
-    @Override
-    public void onMessage(String s) {
-        logger.info("OneBotClient 收到消息：{}", s);
+    /**
+     * 发送私聊消息
+     *
+     * @param userId 用户ID
+     * @param msg 消息内容
+     * @return 响应消息的CompletableFuture
+     */
+    public ChatMessage sendPrivateMessage(String userId, List<ChatMessage.MessageData> msg) {
+        ChatMessage message = MessageUtils.createChatMessage(userId, ChatMessageTypeEnum.PRIVATE.getValue());
+        return socket.sendMessage(message, msg);
     }
 
-    @Override
-    public void onClose(int i, String s, boolean b) {
-        logger.info("OneBotClient {}链接关闭 ：{} : {}",i, s, b);
+    /**
+     * 发送私聊消息
+     *
+     * @param userId 用户ID
+     * @param msg 消息内容
+     * @return 响应消息的CompletableFuture
+     */
+    public ChatMessage sendPrivateMessage(String id, String userId, List<ChatMessage.MessageData> msg) {
+        ChatMessage message = MessageUtils.createChatMessage(userId, ChatMessageTypeEnum.PRIVATE.getValue());
+        message.setId(id);
+        message.setMessage_id(id);
+        return socket.sendMessage(message, msg);
     }
 
-    @Override
-    public void onError(Exception e) {
-        logger.info("OneBotClient报错 ：{}", e);
-    }
 }
